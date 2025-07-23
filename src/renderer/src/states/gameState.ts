@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { create } from 'zustand'
+import { PRESET_SERVERS } from '../../../shared/presetServers'
 
 type GameStates = 'notInstalled' | 'installed' | 'running' | 'deprecated'
 
@@ -47,24 +48,39 @@ export const useGameState = create<GameState>((set) => ({
         ]
       }
     })
-    set(() => ({
-      publicServers: [
-        ...(process.env.NODE_ENV === 'development'
-          ? [
-              {
-                id: -1,
-                name: 'Localhost',
-                ip: '127.0.0.1:23600',
-                maxPlayers: 10,
-                players: 0,
-                region: 'LOCAL',
-                status: 'online'
-              }
-            ]
-          : []),
-        ...response.data
-      ]
+
+    const presetServers = PRESET_SERVERS.map((s) => ({
+      id: -1,
+      name: s.name,
+      ip: `${s.address}:${s.port}`,
+      maxPlayers: 0,
+      players: 0,
+      region: '',
+      status: 'online'
     }))
+
+    const fetchedServers = [
+      ...(process.env.NODE_ENV === 'development'
+        ? [
+            {
+              id: -1,
+              name: 'Localhost',
+              ip: '127.0.0.1:23600',
+              maxPlayers: 10,
+              players: 0,
+              region: 'LOCAL',
+              status: 'online'
+            }
+          ]
+        : []),
+      ...response.data
+    ]
+
+    const combined = [...presetServers, ...fetchedServers].filter(
+      (s, i, arr) => arr.findIndex((t) => t.ip === s.ip) === i
+    )
+
+    set(() => ({ publicServers: combined }))
   },
 
   playtime: null,
