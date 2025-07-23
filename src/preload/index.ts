@@ -20,8 +20,19 @@ if (!localStorage.getItem('gameVersion')) localStorage.setItem('gameVersion', '1
 if (!localStorage.getItem('language')) localStorage.setItem('language', 'en')
 if (!localStorage.getItem('currServerName')) localStorage.setItem('currServerName', 'localhost')
 if (!localStorage.getItem('currServer')) localStorage.setItem('currServer', '127.0.0.1')
-if (localStorage.getItem('servers') === null)
-  localStorage.setItem('servers', '[{"name":"localhost","ip":"127.0.0.1"}]')
+{
+  const existing = JSON.parse(localStorage.getItem('servers') || '[]') as {
+    name: string
+    ip: string
+  }[]
+  const presetFavs = PRESET_SERVERS.map((s) => ({
+    name: s.name,
+    ip: `${s.address}:${s.port}`
+  }))
+  const combined = [...presetFavs, ...existing]
+    .filter((s, i, arr) => arr.findIndex((t) => t.ip === s.ip) === i)
+  localStorage.setItem('servers', JSON.stringify(combined))
+}
 if (!localStorage.getItem('gameDirectory'))
   localStorage.setItem(
     'gameDirectory',
