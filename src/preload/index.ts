@@ -20,8 +20,32 @@ if (!localStorage.getItem('gameVersion')) localStorage.setItem('gameVersion', '1
 if (!localStorage.getItem('language')) localStorage.setItem('language', 'en')
 if (!localStorage.getItem('currServerName')) localStorage.setItem('currServerName', 'localhost')
 if (!localStorage.getItem('currServer')) localStorage.setItem('currServer', '127.0.0.1')
-if (localStorage.getItem('servers') === null)
-  localStorage.setItem('servers', '[{"name":"localhost","ip":"127.0.0.1"}]')
+const defaultServers = [
+  { name: 'localhost', ip: '127.0.0.1' },
+  { name: 'JVLAN', ip: 'knockout.jvlan.ch' },
+  { name: 'JVLAN BACKUP 1', ip: 'backup1-knockout.jvlan.ch' },
+  { name: 'JVLAN BACKUP 2', ip: 'backup2-knockout.jvlan.ch' },
+  { name: 'JVLAN BACKUP 3', ip: 'backup3-knockout.jvlan.ch' },
+  { name: 'JVLAN BACKUP 4', ip: 'backup4-knockout.jvlan.ch' }
+]
+
+const storedServers = localStorage.getItem('servers')
+if (storedServers === null) {
+  localStorage.setItem('servers', JSON.stringify(defaultServers))
+} else {
+  try {
+    const parsed = JSON.parse(storedServers)
+    const existingIps = new Set(parsed.map((s: { ip: string }) => s.ip))
+    const merged = [...parsed]
+    defaultServers.forEach((srv) => {
+      if (!existingIps.has(srv.ip)) merged.push(srv)
+    })
+    if (merged.length !== parsed.length)
+      localStorage.setItem('servers', JSON.stringify(merged))
+  } catch {
+    localStorage.setItem('servers', JSON.stringify(defaultServers))
+  }
+}
 if (!localStorage.getItem('gameDirectory'))
   localStorage.setItem(
     'gameDirectory',
