@@ -21,7 +21,17 @@ if (!localStorage.getItem('language')) localStorage.setItem('language', 'en')
 if (!localStorage.getItem('currServerName')) localStorage.setItem('currServerName', 'localhost')
 if (!localStorage.getItem('currServer')) localStorage.setItem('currServer', '127.0.0.1')
 if (localStorage.getItem('servers') === null)
-  localStorage.setItem('servers', '[{"name":"localhost","ip":"127.0.0.1"}]')
+  localStorage.setItem(
+    'servers',
+    JSON.stringify([
+      { name: 'localhost', ip: '127.0.0.1' },
+      { name: 'JVLAN', ip: 'knockout.jvlan.ch' },
+      { name: 'JVLAN BACKUP 1', ip: 'backup1-knockout.jvlan.ch' },
+      { name: 'JVLAN BACKUP 2', ip: 'backup2-knockout.jvlan.ch' },
+      { name: 'JVLAN BACKUP 3', ip: 'backup3-knockout.jvlan.ch' },
+      { name: 'JVLAN BACKUP 4', ip: 'backup4-knockout.jvlan.ch' }
+    ])
+  )
 if (!localStorage.getItem('gameDirectory'))
   localStorage.setItem(
     'gameDirectory',
