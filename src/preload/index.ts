@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron'
 import { getCurrentWindow } from '@electron/remote'
 import { BrowserWindow } from 'electron'
-import * as Sentry from "@sentry/electron/preload";
+import * as Sentry from '@sentry/electron/preload'
 const os = require('os')
 
 // Use `contextBridge` APIs to expose Electron APIs to
@@ -21,7 +21,7 @@ if (!localStorage.getItem('language')) localStorage.setItem('language', 'en')
 if (!localStorage.getItem('currServerName')) localStorage.setItem('currServerName', 'localhost')
 if (!localStorage.getItem('currServer')) localStorage.setItem('currServer', '127.0.0.1')
 if (localStorage.getItem('servers') === null)
-  localStorage.setItem('servers', '[{"name":"localhost","ip":"127.0.0.1"}]')
+  localStorage.setItem('servers', '[]')
 if (!localStorage.getItem('gameDirectory'))
   localStorage.setItem(
     'gameDirectory',
@@ -217,5 +217,5 @@ window.addEventListener('DOMContentLoaded', () => {
 })
 
 Sentry.init({
-  dsn: "https://7d1f0b4e98dec1bf3ed35c23971e7b74@sentry.ipmake.dev/3",
-});
+  dsn: 'https://7d1f0b4e98dec1bf3ed35c23971e7b74@sentry.ipmake.dev/3'
+})

@@ -20,7 +20,8 @@ import {
   TextField,
   Tooltip
 } from '@mui/material'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { PRESET_SERVERS } from '../../../shared/presetServers'
 
 // Components
 import HostingSection from './HostingSection'
@@ -39,7 +40,23 @@ function ServersMenu(): JSX.Element {
   const [addName, setAddName] = useState('')
   const [addIp, setAddIp] = useState('')
 
-  const [favServers, setFavServers] = useState(JSON.parse(localStorage.getItem('servers') || '[]'))
+  const presetFavs = PRESET_SERVERS.map((s) => ({
+    name: s.name,
+    ip: `${s.address}:${s.port}`
+  }))
+
+  const [userFavs, setUserFavs] = useState<
+    {
+      name: string
+      ip: string
+    }[]
+  >(JSON.parse(localStorage.getItem('servers') || '[]'))
+
+  const favServers = useMemo(
+    () =>
+      [...presetFavs, ...userFavs].filter((s, i, arr) => arr.findIndex((t) => t.ip === s.ip) === i),
+    [userFavs]
+  )
 
   return (
     <Box style={{ marginTop: '-10px' }}>
@@ -72,7 +89,8 @@ function ServersMenu(): JSX.Element {
               return (
                 <h4>
                   {' '}
-                  Something went wrong while contacting the auth server. Try restarting the launcher{' '}
+                  Something went wrong while contacting the auth server. Try restarting the
+                  launcher{' '}
                 </h4>
               )
             if (publicServers.length === 0)
@@ -145,8 +163,8 @@ function ServersMenu(): JSX.Element {
                                   server.status === 'online'
                                     ? 'green'
                                     : server.status === 'deprecated'
-                                    ? 'orange'
-                                    : 'red',
+                                      ? 'orange'
+                                      : 'red',
                                 width: '20px',
                                 height: '20px',
                                 fontSize: '20px'
@@ -260,11 +278,9 @@ function ServersMenu(): JSX.Element {
                     >
                       <IconButton
                         onClick={(): void => {
-                          setFavServers([{ name: addName, ip: addIp }, ...favServers])
-                          localStorage.setItem(
-                            'servers',
-                            JSON.stringify([{ name: addName, ip: addIp }, ...favServers])
-                          )
+                          const updated = [...userFavs, { name: addName, ip: addIp }]
+                          setUserFavs(updated)
+                          localStorage.setItem('servers', JSON.stringify(updated))
                           setAddActive(false)
                           setAddName('')
                           setAddIp('')
@@ -303,18 +319,18 @@ function ServersMenu(): JSX.Element {
                         >
                           <ExitToAppOutlined />
                         </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={(): void => {
-                            setFavServers(favServers.filter((s) => s.ip !== server.ip))
-                            localStorage.setItem(
-                              'servers',
-                              JSON.stringify(favServers.filter((s) => s.ip !== server.ip))
-                            )
-                          }}
-                        >
-                          <CloseOutlined />
-                        </IconButton>
+                        {presetFavs.every((p) => p.ip !== server.ip) && (
+                          <IconButton
+                            size="small"
+                            onClick={(): void => {
+                              const updated = userFavs.filter((s) => s.ip !== server.ip)
+                              setUserFavs(updated)
+                              localStorage.setItem('servers', JSON.stringify(updated))
+                            }}
+                          >
+                            <CloseOutlined />
+                          </IconButton>
+                        )}
                       </Box>
                     </TableCell>
                   </TableRow>
