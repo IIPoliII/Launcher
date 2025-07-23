@@ -20,7 +20,7 @@ import {
   TextField,
   Tooltip
 } from '@mui/material'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // Components
 import HostingSection from './HostingSection'
@@ -28,6 +28,14 @@ import HostingSection from './HostingSection'
 // states
 import { useGameState } from '../states/gameState'
 import { useSelectedServerState } from '../states/selectedServerState'
+
+const DEFAULT_FAV_SERVERS = [
+  { name: 'JVLAN', ip: 'knockout.jvlan.ch' },
+  { name: 'JVLAN BACKUP 1', ip: 'backup1-knockout.jvlan.ch' },
+  { name: 'JVLAN BACKUP 2', ip: 'backup2-knockout.jvlan.ch' },
+  { name: 'JVLAN BACKUP 3', ip: 'backup3-knockout.jvlan.ch' },
+  { name: 'JVLAN BACKUP 4', ip: 'backup4-knockout.jvlan.ch' }
+]
 
 function ServersMenu(): JSX.Element {
   const { publicServers, setPublicServers, fetchPublicServers } = useGameState()
@@ -39,7 +47,17 @@ function ServersMenu(): JSX.Element {
   const [addName, setAddName] = useState('')
   const [addIp, setAddIp] = useState('')
 
-  const [favServers, setFavServers] = useState(JSON.parse(localStorage.getItem('servers') || '[]'))
+  const savedServers = JSON.parse(localStorage.getItem('servers') || 'null')
+  const [favServers, setFavServers] = useState(
+    savedServers && Array.isArray(savedServers) && savedServers.length > 0
+      ? savedServers
+      : DEFAULT_FAV_SERVERS
+  )
+
+  useEffect(() => {
+    if (!savedServers || savedServers.length === 0)
+      localStorage.setItem('servers', JSON.stringify(DEFAULT_FAV_SERVERS))
+  }, [])
 
   return (
     <Box style={{ marginTop: '-10px' }}>
@@ -72,7 +90,8 @@ function ServersMenu(): JSX.Element {
               return (
                 <h4>
                   {' '}
-                  Something went wrong while contacting the auth server. Try restarting the launcher{' '}
+                  Something went wrong while contacting the auth server. Try restarting the
+                  launcher{' '}
                 </h4>
               )
             if (publicServers.length === 0)
@@ -145,8 +164,8 @@ function ServersMenu(): JSX.Element {
                                   server.status === 'online'
                                     ? 'green'
                                     : server.status === 'deprecated'
-                                    ? 'orange'
-                                    : 'red',
+                                      ? 'orange'
+                                      : 'red',
                                 width: '20px',
                                 height: '20px',
                                 fontSize: '20px'
